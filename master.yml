@@ -1,0 +1,41 @@
+ - hosts : namenode
+   vars :
+           namenode_folder_name: "/nn"
+   tasks:
+   - name: "Copying Hadoop and java Software"
+     copy: 
+        dest : "/root"
+        src : "/root/hadoop/"
+   - name: "Installing hadoop"
+     shell : "rpm -ivh /root/hadoop-1.2.1-1.x86_64.rpm --force"
+     ignore_errors: yes
+
+   - name: "Installing JDK"
+     shell: "rpm -ivh /root/jdk-8u171-linux-x64.rpm"
+     ignore_errors: yes
+
+   - name: "Make directory for Namenode"
+     file:
+             path: "{{ namenode_folder_name }}"
+             state: directory
+
+   - name : "Configure hdfs-site.xml file"
+     template:
+             src: "hdfs-site.xml"
+             dest: "/etc/hadoop/hdfs-site.xml"
+
+   - name : "Configure core-site.xml"
+     template :
+             src: "core-site.xml"
+             dest: "/etc/hadoop/core-site.xml"
+
+   - name : "Formating directory on namenode"
+     shell : "echo Y | hadoop namenode -format -f"
+
+   - name : "Starting hadoop service on Namenode "
+     command : "hadoop-daemon.sh start namenode"
+     ignore_errors: true
+   
+   - name: "JPS Command"
+     shell: "jps"
+
